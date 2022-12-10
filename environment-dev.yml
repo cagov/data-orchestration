@@ -1,0 +1,9 @@
+name: composer
+channels: [conda-forge]
+dependencies:
+  - python=3.10
+  - just=1.9.0
+  - google-cloud-sdk
+  - pip
+  - pip:
+    git+https://github.com/GoogleCloudPlatform/composer-local-dev.git
