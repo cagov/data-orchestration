@@ -1,9 +1,8 @@
-
 """Geospatial utilities"""
 from __future__ import annotations
 
-from typing import Literal
 import warnings
+from typing import Literal
 
 import geopandas
 import geopandas.array

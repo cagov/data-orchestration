@@ -22,4 +22,3 @@ start:
 restart:
   cp requirements.txt {{env_path}}/requirements.txt
   composer-dev restart {{local}}
-
