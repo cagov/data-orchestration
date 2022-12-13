@@ -9,9 +9,9 @@ port := "8081"
 
 create-local-env:
   composer-dev create {{local}} \
-      --from-source-environment dse-airflow-dev-cpr-uw1 \
-      --location us-west1 \
-      --project caldata-sandbox \
+      --from-source-environment $SOURCE_ENVIRONMENT$ \
+      --location $LOCATION \
+      --project $PROJECT \
       --port {{port}} \
       --dags-path dags
 
@@ -22,3 +22,7 @@ start:
 restart:
   cp requirements.txt {{env_path}}/requirements.txt
   composer-dev restart {{local}}
+
+sync-dags:
+  gsutil rsync -d -r -x "airflow_monitoring\.py|.*\.pyc|.*\.ipynb_checkpoints.*" \
+  dags $DAGS_BUCKET
