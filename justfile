@@ -9,7 +9,7 @@ port := "8081"
 
 create-local-env:
   composer-dev create {{local}} \
-      --from-source-environment $SOURCE_ENVIRONMENT$ \
+      --from-source-environment $SOURCE_ENVIRONMENT \
       --location $LOCATION \
       --project $PROJECT \
       --port {{port}} \
@@ -26,3 +26,8 @@ restart:
 sync-dags:
   gsutil rsync -d -r -x "airflow_monitoring\.py|.*\.pyc|.*\.ipynb_checkpoints.*" \
   dags $DAGS_BUCKET
+
+sync-requirements:
+   gcloud composer environments update $SOURCE_ENVIRONMENT --location=$LOCATION \
+   --update-pypi-packages-from-file=requirements.txt \
+   || true
