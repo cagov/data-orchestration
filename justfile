@@ -31,3 +31,10 @@ sync-requirements:
    gcloud composer environments update $SOURCE_ENVIRONMENT --location=$LOCATION \
    --update-pypi-packages-from-file=requirements.txt \
    || true
+
+list-dags:
+  composer-dev run-airflow-cmd {{local}} dags list
+
+trigger dag:
+  composer-dev run-airflow-cmd {{local}} dags trigger \
+  -e `date -u +"%Y-%m-%dT%H:%M:%S%z"` {{dag}}
