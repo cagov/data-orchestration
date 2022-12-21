@@ -54,7 +54,7 @@ def load_data(url: str, name: str) -> None:
 # Somewhat awkward construction to avoid late-binding
 # loop variable nonsense.
 # cf. https://github.com/apache/airflow/discussions/21278
-def _make_dag(url: str, name: str):
+def _make_dag(dag_id: str, url: str, name: str):
     @dag(
         dag_id=dag_id,
         description=f"Load data for {name}",
@@ -70,4 +70,4 @@ def _make_dag(url: str, name: str):
 
 for name, url in REFERENCE_DATA.items():
     dag_id = f"load_{name}"
-    globals()[dag_id] = _make_dag(url, name)()
+    globals()[dag_id] = _make_dag(dag_id, url, name)()

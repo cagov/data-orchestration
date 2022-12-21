@@ -1,2 +1,3 @@
 geopandas~=0.12
+pdfplumber
 shapely<2
