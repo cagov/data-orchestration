@@ -98,7 +98,7 @@ def load_feedback_data() -> None:
 @dag(
     description="Load department of finance state entities list",
     start_date=datetime(2022, 12, 19),
-    schedule_interval="@monthly",
+    schedule_interval="0 */6 * * *",
     default_args=DEFAULT_ARGS,
 )
 def load_cal_innovate_feedback_data():
