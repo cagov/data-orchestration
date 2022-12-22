@@ -28,10 +28,13 @@ DEFAULT_ARGS = {
 
 @task
 def load_feedback_data() -> None:
-
+    """
+    Load feedback data from api.alpha.ca.gov
+    """
     # Load the raw JSON data
     data = requests.get(DATA_URL).json()
 
+    # Convert to dataframe, rename columns to match destination table.
     df = pandas.DataFrame.from_records(data)
     df = (
         df.assign(
@@ -53,6 +56,12 @@ def load_feedback_data() -> None:
     table = "ppf_data"
     tmp_table = f"{table}_tmp_{''.join(random.choices(string.ascii_lowercase, k=3))}"
 
+    # In general we will pull the data from this endpoint multiple times, so we don't
+    # want to just naively append it to BQ table as we'll get many duplicates for each
+    # comment. So instead we upload to a temp table and then do a MERGE operation
+    # into the actual table. It would be nice to use an *actual* temp table here so
+    # that we wouldn't be responsible for cleaning it up, but I don't think that's
+    # possible using tha pandas_gbq API, so keeping things simple.
     try:
         df.to_gbq(
             f"{schema}.{tmp_table}",
