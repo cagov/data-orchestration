@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-import geopandas
 from airflow.decorators import dag, task
 from common.geo import gdf_to_bigquery
 
@@ -42,6 +41,8 @@ def load_data(url: str, name: str) -> None:
 
     Given a URL, load geospatial data into BigQuery
     """
+    import geopandas
+
     gdf = geopandas.read_file(url)
     gdf_to_bigquery(
         gdf,
