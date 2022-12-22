@@ -3,12 +3,11 @@
 # Load from .env for local config or sensitive data
 set dotenv-load
 
-local := "dev"
-env_path := "composer" / local
+env_path := "composer/$LOCAL"
 port := "8081"
 
 create-local-env:
-  composer-dev create {{local}} \
+  composer-dev create $LOCAL \
       --from-source-environment $SOURCE_ENVIRONMENT \
       --location $LOCATION \
       --project $PROJECT \
@@ -17,24 +16,24 @@ create-local-env:
 
 start:
   cp requirements.txt {{env_path}}/requirements.txt
-  composer-dev start {{local}} 
+  composer-dev start $LOCAL
 
 restart:
   cp requirements.txt {{env_path}}/requirements.txt
-  composer-dev restart {{local}}
+  composer-dev restart $LOCAL
 
 sync-dags:
   gsutil rsync -d -r -x "airflow_monitoring\.py|.*\.pyc|.*\.ipynb_checkpoints.*" \
   dags $DAGS_BUCKET
 
 sync-requirements:
-   gcloud composer environments update $SOURCE_ENVIRONMENT --location=$LOCATION \
+   gcloud composer environments update $SOURCE_ENVIRONMENT --project=$PROJECT --location=$LOCATION \
    --update-pypi-packages-from-file=requirements.txt \
    || true
 
 list-dags:
-  composer-dev run-airflow-cmd {{local}} dags list
+  composer-dev run-airflow-cmd $LOCAL dags list
 
 trigger dag:
-  composer-dev run-airflow-cmd {{local}} dags trigger \
+  composer-dev run-airflow-cmd $LOCAL dags trigger \
   -e `date -u +"%Y-%m-%dT%H:%M:%S%z"` {{dag}}
