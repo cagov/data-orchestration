@@ -1,6 +1,8 @@
 """Load feedback form data from CalInnovate sites"""
 from __future__ import annotations
 
+import random
+import string
 from datetime import datetime, timedelta
 
 import pandas
@@ -48,16 +50,22 @@ def load_feedback_data() -> None:
 
     client = bigquery.Client(project="dse-product-analytics-prd-bqd")
     try:
+        schema = "prod_analytics_web"
+        table = "ppf_data"
+        tmp_table = (
+            f"{table}_tmp_{''.join(random.choices(string.ascii_lowercase, k=3))}"
+        )
+
         df.to_gbq(
-            "prod_analytics_web.ppf_data_tmp",
+            f"{schema}.{tmp_table}",
             project_id="dse-product-analytics-prd-bqd",
             if_exists="replace",
         )
 
         q = client.query(
-            """
-            MERGE INTO `prod_analytics_web.ppf_data` AS tgt
-            USING `prod_analytics_web.ppf_data_tmp` AS src
+            f"""
+            MERGE INTO `{schema}.{table}` AS tgt
+            USING `{schema}.{tmp_table}` AS src
             ON tgt.id = src.id
             WHEN NOT MATCHED THEN
             -- Insert ROW doesn't work for partitioned targets, unfortunately
@@ -92,7 +100,7 @@ def load_feedback_data() -> None:
         for _ in q:
             pass
     finally:
-        q = client.query("""DROP TABLE `prod_analytics_web.ppf_data_tmp`""")
+        q = client.query("""DROP TABLE `{schema}.{tmp_table}`""")
 
 
 @dag(
