@@ -18,7 +18,7 @@ DATA_URL = (
 DEFAULT_ARGS = {
     "owner": "CalData",
     "depends_on_past": False,
-    "email": ["odi-caldata-dse@innovation.ca.gov"],
+    "email": ["odi-caldata-dse@innovation.ca.gov", "james.logan@cdph.ca.gov"],
     "email_on_failure": False,
     "email_on_retry": False,
     "retries": 2,
@@ -111,7 +111,7 @@ def load_feedback_data() -> None:
 
 
 @dag(
-    description="Load department of finance state entities list",
+    description="Load CalInnovate Feedback form data",
     start_date=datetime(2022, 12, 19),
     schedule_interval="0 */6 * * *",
     default_args=DEFAULT_ARGS,
