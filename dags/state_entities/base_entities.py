@@ -6,7 +6,6 @@ import re
 from datetime import datetime, timedelta
 
 import pandas
-import pdfplumber
 import requests
 from airflow.decorators import dag, task
 
@@ -42,6 +41,7 @@ def load_data() -> None:
     """
     ### Load Department of Finance State Entities data
     """
+    import pdfplumber
 
     # Regexes matching frontmatter and other lines we should skip
     skip = [
