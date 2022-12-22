@@ -49,13 +49,11 @@ def load_feedback_data() -> None:
     )
 
     client = bigquery.Client(project="dse-product-analytics-prd-bqd")
-    try:
-        schema = "prod_analytics_web"
-        table = "ppf_data"
-        tmp_table = (
-            f"{table}_tmp_{''.join(random.choices(string.ascii_lowercase, k=3))}"
-        )
+    schema = "prod_analytics_web"
+    table = "ppf_data"
+    tmp_table = f"{table}_tmp_{''.join(random.choices(string.ascii_lowercase, k=3))}"
 
+    try:
         df.to_gbq(
             f"{schema}.{tmp_table}",
             project_id="dse-product-analytics-prd-bqd",
@@ -100,7 +98,7 @@ def load_feedback_data() -> None:
         for _ in q:
             pass
     finally:
-        q = client.query("""DROP TABLE `{schema}.{tmp_table}`""")
+        q = client.query(f"""DROP TABLE `{schema}.{tmp_table}`""")
 
 
 @dag(
