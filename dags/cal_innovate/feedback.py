@@ -10,10 +10,13 @@ import requests
 from airflow.decorators import dag, task
 from google.cloud import bigquery
 
-# TODO: parameterize over different sites
-DATA_URL = (
-    "https://api.alpha.ca.gov/WasHelpfulData/?url=covid19.ca.gov&requestor=datastudio"
-)
+DATA_URLS = {
+    "covid19": "https://fa-go-alph-d-002.azurewebsites.net/WasHelpfulData/?url=covid19.ca.gov&requestor=datastudio",
+    "drought": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=drought.ca.gov&requestor=datastudio",
+    "cannabis": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=cannabis.ca.gov&requestor=datastudio",
+    "digital": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=digital.ca.gov&requestor=datastudio",
+    "ca": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=ca.gov&requestor=datastudio",
+}
 
 DEFAULT_ARGS = {
     "owner": "CalData",
@@ -31,25 +34,35 @@ def load_feedback_data() -> None:
     """
     Load feedback data from api.alpha.ca.gov
     """
-    # Load the raw JSON data
-    data = requests.get(DATA_URL).json()
+    dfs = []
+    # Iterate over the various CalInnovate domains. This could be broken up into
+    # separate tasks to isolate failures, that's probably overkill right now.
+    for source, url in DATA_URLS.items():
+        # Load the raw JSON data
+        print(f"Reading data for {source}")
+        data = requests.get(url).json()
+        if not data:
+            continue
 
-    # Convert to dataframe, rename columns to match destination table.
-    df = pandas.DataFrame.from_records(data)
-    df = (
-        df.assign(
-            timestamp=pandas.to_datetime(df.timestamp, utc=True),
-            source="covid19",
+        # Convert to dataframe, rename columns to match destination table.
+        df = pandas.DataFrame.from_records(data)
+        df = (
+            df.assign(
+                timestamp=pandas.to_datetime(df.timestamp, utc=True),
+                source=source,
+            )
+            .sort_values("timestamp", ascending=True)
+            .rename(
+                columns={
+                    "helpful": "is_helpful",
+                    "timestamp": "date_time_utc",
+                    "pagesection": "page_section",  # Some, but not all sites use `pagesection`
+                }
+            )
         )
-        .sort_values("timestamp", ascending=True)
-        .rename(
-            columns={
-                "helpful": "is_helpful",
-                "timestamp": "date_time_utc",
-                "pagesection": "page_section",
-            }
-        )
-    )
+        dfs.append(df)
+
+    final = pandas.concat(dfs, axis=0, ignore_index=True)
 
     client = bigquery.Client(project="dse-product-analytics-prd-bqd")
     schema = "prod_analytics_web"
@@ -63,7 +76,7 @@ def load_feedback_data() -> None:
     # that we wouldn't be responsible for cleaning it up, but I don't think that's
     # possible using tha pandas_gbq API, so keeping things simple.
     try:
-        df.to_gbq(
+        final.to_gbq(
             f"{schema}.{tmp_table}",
             project_id="dse-product-analytics-prd-bqd",
             if_exists="replace",
