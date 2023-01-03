@@ -14,8 +14,9 @@ DATA_URLS = {
     "covid19": "https://fa-go-alph-d-002.azurewebsites.net/WasHelpfulData/?url=covid19.ca.gov&requestor=datastudio",
     "drought": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=drought.ca.gov&requestor=datastudio",
     "cannabis": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=cannabis.ca.gov&requestor=datastudio",
-    "digital": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=digital.ca.gov&requestor=datastudio",
-    "ca": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=ca.gov&requestor=datastudio",
+    "innovation": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=innovation.ca.gov&requestor=datastudio",
+    "designsystem": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=designsystem.webstandards.ca.gov&requestor=datastudio",  # noqa: E501
+    "ca": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=www.ca.gov&requestor=datastudio",
 }
 
 DEFAULT_ARGS = {
