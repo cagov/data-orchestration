@@ -9,6 +9,7 @@ import geopandas.array
 import pandas_gbq.schema
 import shapely.ops
 from google.cloud import bigquery
+from google.cloud.exceptions import NotFound
 
 
 def gdf_to_bigquery(
@@ -81,8 +82,19 @@ def gdf_to_bigquery(
         tref.schema = pandas_gbq.schema.to_google_cloud_bigquery(schema)
         tref.clustering_fields = [col]
 
-        # Create the table. TODO: do some existence checks here for pre-existing tables.
         client = bigquery.Client(project=project_id)
+
+        # Handle if_exists
+        try:
+            client.get_table(tref)
+            if if_exists == "fail":
+                raise RuntimeError(f"Table {destination_table} already exists!")
+            elif if_exists == "replace":
+                client.delete_table(tref)
+        except NotFound:
+            pass
+
+        # Create the table.
         client.create_table(tref)
 
         # We've created a new table, now set if_exists to append to insert data into the
