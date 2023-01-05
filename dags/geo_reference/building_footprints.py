@@ -23,13 +23,13 @@ def load_state_footprints() -> None:
 
     print("Downloading data")
     gdf = geopandas.read_file(
-        "https://usbuildingdata.blob.core.windows.net/usbuildings-v2/Alaska.geojson.zip"
+        "https://usbuildingdata.blob.core.windows.net/usbuildings-v2/California.geojson.zip"
     )
 
     print("Writing data to gbq")
     gdf_to_bigquery(
         gdf,
-        "geo_reference.alaska_building_footprints",
+        "geo_reference.california_building_footprints",
         project_id="caldata-sandbox",
         cluster=True,
         if_exists="replace",
