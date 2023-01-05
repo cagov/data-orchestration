@@ -32,7 +32,7 @@ def load_state_footprints() -> None:
         "geo_reference.alaska_building_footprints",
         project_id="caldata-sandbox",
         cluster=True,
-        if_exists="fail",
+        if_exists="replace",
     )
 
 
