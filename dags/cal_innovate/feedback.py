@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import random
 import string
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pandas
 import requests
 from airflow.decorators import dag, task
+from common.defaults import DEFAULT_ARGS
 from google.cloud import bigquery
 
 DATA_URLS = {
@@ -19,14 +20,9 @@ DATA_URLS = {
     "ca": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=www.ca.gov&requestor=datastudio",
 }
 
-DEFAULT_ARGS = {
-    "owner": "CalData",
-    "depends_on_past": False,
-    "email": ["odi-caldata-dse@innovation.ca.gov", "james.logan@cdph.ca.gov"],
-    "email_on_failure": False,
-    "email_on_retry": False,
-    "retries": 2,
-    "retry_delay": timedelta(minutes=5),
+default_args = {
+    **DEFAULT_ARGS,
+    "email": DEFAULT_ARGS["email"] + ["james.logan@cdph.ca.gov"],
 }
 
 
@@ -128,7 +124,7 @@ def load_feedback_data() -> None:
     description="Load CalInnovate Feedback form data",
     start_date=datetime(2022, 12, 19),
     schedule_interval="0 */6 * * *",
-    default_args=DEFAULT_ARGS,
+    default_args=default_args,
 )
 def load_cal_innovate_feedback_data():
     load_feedback_data()

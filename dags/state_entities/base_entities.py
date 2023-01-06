@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import io
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pandas
 import requests
 from airflow.decorators import dag, task
+from common.defaults import DEFAULT_ARGS
 
 GBQ_DATASET = "state_entities"
 PROJECT_ID = "caldata-sandbox"
@@ -16,16 +17,6 @@ DATA_URL = (
     "https://dof.ca.gov/wp-content/uploads/Accounting/"
     "Policies_and_Procedures/Uniform_Codes_Manual/3orgstruc.pdf"
 )
-
-DEFAULT_ARGS = {
-    "owner": "CalData",
-    "depends_on_past": False,
-    "email": ["odi-caldata-dse@innovation.ca.gov"],
-    "email_on_failure": False,
-    "email_on_retry": False,
-    "retries": 2,
-    "retry_delay": timedelta(minutes=5),
-}
 
 
 def clean_name(name: str) -> str:
