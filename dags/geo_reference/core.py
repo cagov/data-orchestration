@@ -1,9 +1,10 @@
 """Relatively simple geospatial reference data ingests"""
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from airflow.decorators import dag, task
+from common.defaults import DEFAULT_ARGS
 from common.geo import gdf_to_bigquery
 
 REFERENCE_DATA = {
@@ -22,16 +23,6 @@ REFERENCE_DATA = {
 # TODO: make these configurable and target staging/prod
 GBQ_DATASET = "geo_reference"
 PROJECT_ID = "caldata-sandbox"
-
-DEFAULT_ARGS = {
-    "owner": "CalData",
-    "depends_on_past": False,
-    "email": ["odi-caldata-dse@innovation.ca.gov"],
-    "email_on_failure": False,
-    "email_on_retry": False,
-    "retries": 2,
-    "retry_delay": timedelta(minutes=5),
-}
 
 
 @task
