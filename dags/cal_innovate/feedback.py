@@ -4,7 +4,6 @@ from __future__ import annotations
 import random
 import string
 from datetime import datetime
-from typing import cast
 
 import pandas
 import requests
@@ -19,7 +18,7 @@ DATA_URL = (
 
 default_args = {
     **DEFAULT_ARGS,
-    "email": cast(list[str], DEFAULT_ARGS["email"]) + ["james.logan@cdph.ca.gov"],
+    "email": DEFAULT_ARGS["email"] + ["james.logan@cdph.ca.gov"],
 }
 
 
