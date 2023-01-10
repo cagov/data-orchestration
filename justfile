@@ -52,10 +52,10 @@ trigger-local dag:
   -e `date -u +"%Y-%m-%dT%H:%M:%S%z"` {{dag}}
 
 # Test a DAG on the composer cluster
-test dag:
+test-task dag task:
   gsutil rsync -d -r -x "airflow_monitoring\.py|.*\.pyc|.*\.ipynb_checkpoints.*" \
   dags {{test_path}}
 
   gcloud composer environments run $SOURCE_ENVIRONMENT --location $LOCATION \
-  dags test -- --subdir /home/airflow/gcs/data/test \
-  {{dag}} `date -u +"%Y-%m-%dT%H:%M:%S%z"`
+  tasks test -- --subdir /home/airflow/gcs/data/test \
+  {{dag}} {{task}} `date -u +"%Y-%m-%dT%H:%M:%S%z"`
