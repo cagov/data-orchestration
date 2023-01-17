@@ -5,9 +5,9 @@ import re
 from datetime import datetime
 
 import pandas
-import requests
 from airflow.decorators import dag, task
 from common.defaults import DEFAULT_ARGS
+from common.requests import get
 
 GBQ_DATASET = "state_entities"
 PROJECT_ID = "caldata-sandbox"
@@ -28,19 +28,19 @@ def crawl_ebudget_site(year="2022-23"):
     all_agencies_and_departments = []
     all_programs = []
 
-    agencies = requests.get(f"{PREFIX}/e/{year}/statistics").json()
+    agencies = get(f"{PREFIX}/e/{year}/statistics").json()
     all_agencies_and_departments.extend(agencies)
 
     for agency in agencies:
         print(f"Fetching department data for {agency['legalTitl']}")
-        departments = requests.get(
+        departments = get(
             f"{PREFIX}/e/{year}/statistics/{agency['webAgencyCd']}"
         ).json()
         all_agencies_and_departments.extend(departments)
 
         for department in departments:
             print(f"Fetching program data for {department['legalTitl']}")
-            programs = requests.get(
+            programs = get(
                 f"{PREFIX}/e/{year}/orgProgram/{department['webAgencyCd']}"
             ).json()
             all_programs.extend(programs["lines"])
