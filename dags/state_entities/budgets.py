@@ -1,0 +1,80 @@
+"""Load state entity budgets from ebudget site"""
+from __future__ import annotations
+
+import re
+from datetime import datetime
+
+import pandas
+import requests
+from airflow.decorators import dag, task
+from common.defaults import DEFAULT_ARGS
+
+GBQ_DATASET = "state_entities"
+PROJECT_ID = "caldata-sandbox"
+
+PREFIX = "https://ebudget.ca.gov/budget/publication/admin"
+
+
+def camel_to_snake(s: str) -> str:
+    """
+    Convert a camel-cased name to a snake-cased one, which is more appropriate for
+    case-insensitive data warehouse backends
+    """
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", s).lower()
+
+
+@task
+def crawl_ebudget_site(year="2022-23"):
+    all_agencies_and_departments = []
+    all_programs = []
+
+    agencies = requests.get(f"{PREFIX}/e/{year}/statistics").json()
+    all_agencies_and_departments.extend(agencies)
+
+    for agency in agencies:
+        print(f"Fetching department data for {agency['legalTitl']}")
+        departments = requests.get(
+            f"{PREFIX}/e/{year}/statistics/{agency['webAgencyCd']}"
+        ).json()
+        all_agencies_and_departments.extend(departments)
+
+        for department in departments:
+            print(f"Fetching program data for {department['legalTitl']}")
+            programs = requests.get(
+                f"{PREFIX}/e/{year}/orgProgram/{department['webAgencyCd']}"
+            ).json()
+            all_programs.extend(programs["lines"])
+
+    agencies_df = pandas.DataFrame.from_records(all_agencies_and_departments).rename(
+        columns=camel_to_snake
+    )
+    programs_df = pandas.DataFrame.from_records(all_programs).rename(
+        columns=camel_to_snake
+    )
+
+    print("Loading agencies")
+    agencies_df.to_gbq(
+        f"{GBQ_DATASET}.ebudget_agency_and_department_budgets",
+        project_id=PROJECT_ID,
+        if_exists="replace",
+    )
+
+    print("Loading programs")
+    programs_df.to_gbq(
+        f"{GBQ_DATASET}.ebudget_program_budgets",
+        project_id=PROJECT_ID,
+        if_exists="replace",
+    )
+
+
+@dag(
+    description="Load budget data from ebudget site",
+    start_date=datetime(2023, 1, 17),
+    schedule_interval="@monthly",
+    default_args=DEFAULT_ARGS,
+)
+def load_ebudget_data():
+    crawl_ebudget_site("2022-23")
+
+
+run = load_ebudget_data()
