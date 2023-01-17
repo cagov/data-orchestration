@@ -25,6 +25,13 @@ def camel_to_snake(s: str) -> str:
 
 @task
 def crawl_ebudget_site(year="2022-23"):
+    """Crawl the eBudget site for a year's budget information"""
+
+    # This ontology doesn't match cleanly into the UCM one (Agency, subagency,
+    # department, etc,  but that's okay since we treat UCM as authoritative and join
+    # on the BU code. We collect and write agencies+departments differently from
+    # programs because the latter have a different schema returned from the API.
+    # Normalization is done in the data warehouse.
     all_agencies_and_departments = []
     all_programs = []
 
@@ -74,6 +81,10 @@ def crawl_ebudget_site(year="2022-23"):
     default_args=DEFAULT_ARGS,
 )
 def load_ebudget_data():
+    """Load eBudget data"""
+
+    # TODO: we will likely want to grab multiple years, and also load
+    # proposed and May revision data.
     crawl_ebudget_site("2022-23")
 
 
