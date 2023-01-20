@@ -27,6 +27,9 @@ restart-local-env:
   cp requirements.txt {{env_path}}/requirements.txt
   composer-dev restart $LOCAL
 
+stop-local-env:
+  composer-dev stop $LOCAL
+
 # Sync the dags/ folder to the GCP bucket for the cloud environment (deploys!)
 sync-dags:
   gsutil rsync -d -r -x "airflow_monitoring\.py|.*\.pyc|.*\.ipynb_checkpoints.*" \
@@ -56,6 +59,6 @@ test-task dag task:
   gsutil rsync -d -r -x "airflow_monitoring\.py|.*\.pyc|.*\.ipynb_checkpoints.*" \
   dags {{test_path}}
 
-  gcloud composer environments run $SOURCE_ENVIRONMENT --location $LOCATION \
+  gcloud composer environments run $SOURCE_ENVIRONMENT --project $PROJECT --location $LOCATION \
   tasks test -- --subdir /home/airflow/gcs/data/test \
   {{dag}} {{task}} `date -u +"%Y-%m-%dT%H:%M:%S%z"`
