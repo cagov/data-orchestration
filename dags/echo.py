@@ -21,7 +21,7 @@ with models.DAG(
         name="echo",
         arguments=["micromamba", "env", "list"],
         namespace="composer-user-workloads",
-        image="us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/geo:arch",
+        image="us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/geo:latest",
         kubernetes_conn_id="kubernetes_default",
         config_file="/home/airflow/composer_kube_config",
     )

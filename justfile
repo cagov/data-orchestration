@@ -8,6 +8,7 @@ dags_path := "${DAGS_BUCKET}/dags"
 test_path := "${DAGS_BUCKET}/data/test"
 port := "8081"
 rev := `git rev-parse --short HEAD`
+image_arch := "linux/amd64"
 
 # Create a local composer development environment
 create-local-env:
@@ -71,8 +72,10 @@ _create-image-repository:
   --repository-format=docker $IMAGE_REPO
 
 # Build and publish and image
-publish: _create-image-repository
-  docker buildx build --platform linux/amd64 \
-  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename $PWD`:`git rev-parse --short HEAD` \
-  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename $PWD`:latest .
-  docker push ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename $PWD`:`git rev-parse --short HEAD`
+publish image: _create-image-repository
+  echo $PWD
+  echo {{image}}
+  docker buildx build --platform {{image_arch}} \
+  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image}}`:{{rev}} \
+  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image}}`:latest {{image}}
+  docker push ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image}}` --all-tags
