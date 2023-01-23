@@ -20,12 +20,13 @@ with models.DAG(
     kubernetes_min_pod = KubernetesPodOperator(
         task_id="echo",
         name="echo",
-        arguments=["cat", "/proc/cpuinfo"],
+        arguments=["bq", "ls"],
         namespace="composer-user-workloads",
-        image="us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/geo:latest",
+        image="us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/analytics:358a4cd",
         kubernetes_conn_id="kubernetes_default",
         config_file="/home/airflow/composer_kube_config",
         container_resources=k8s_models.V1ResourceRequirements(
             requests={"memory": "32Gi", "cpu": "8"},
         ),
+        startup_timeout_seconds=300,
     )

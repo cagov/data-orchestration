@@ -1,0 +1,10 @@
+name: base
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - geopandas~=0.12
+  - google-cloud-sdk
+  - pandas-gbq
+  - pyarrow
+  - python=3.10

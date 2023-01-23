@@ -9,6 +9,7 @@ test_path := "${DAGS_BUCKET}/data/test"
 port := "8081"
 rev := `git rev-parse --short HEAD`
 image_arch := "linux/amd64"
+image_name := "analytics"
 
 # Create a local composer development environment
 create-local-env:
@@ -71,11 +72,11 @@ _create-image-repository:
   gcloud artifacts repositories create --location $LOCATION --project $PROJECT \
   --repository-format=docker $IMAGE_REPO
 
-# Build and publish and image
-publish image: _create-image-repository
-  echo $PWD
-  echo {{image}}
+# Build image
+build:
   docker buildx build --platform {{image_arch}} \
-  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image}}`:{{rev}} \
-  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image}}`:latest {{image}}
-  docker push ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image}}` --all-tags
+  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image_name}}`:{{rev}} .
+
+# Build and publish and image
+publish: build _create-image-repository
+  docker push ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image_name}}`:{{rev}}
