@@ -19,7 +19,7 @@ with models.DAG(
     kubernetes_min_pod = KubernetesPodOperator(
         task_id="echo",
         name="echo",
-        cmds=["micromamba", "env", "list"],
+        arguments=["micromamba", "env", "list"],
         namespace="composer-user-workloads",
         image="us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/geo:arch",
         kubernetes_conn_id="kubernetes_default",
