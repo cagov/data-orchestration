@@ -19,9 +19,9 @@ with models.DAG(
     kubernetes_min_pod = KubernetesPodOperator(
         task_id="echo",
         name="echo",
-        cmds=["echo", "'Hello, World!'"],
+        cmds=["micromamba", "env", "list"],
         namespace="composer-user-workloads",
-        image="gcr.io/gcp-runtimes/ubuntu_20_0_4",
+        image="us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/geo:arch",
         kubernetes_conn_id="kubernetes_default",
         config_file="/home/airflow/composer_kube_config",
     )

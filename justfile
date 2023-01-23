@@ -7,6 +7,7 @@ env_path := "composer/$LOCAL"
 dags_path := "${DAGS_BUCKET}/dags"
 test_path := "${DAGS_BUCKET}/data/test"
 port := "8081"
+rev := `git rev-parse --short HEAD`
 
 # Create a local composer development environment
 create-local-env:
@@ -62,3 +63,16 @@ test-task dag task:
   gcloud composer environments run $SOURCE_ENVIRONMENT --project $PROJECT --location $LOCATION \
   tasks test -- --subdir /home/airflow/gcs/data/test \
   {{dag}} {{task}} `date -u +"%Y-%m-%dT%H:%M:%S%z"`
+
+# Private rule to create an image repository in gcp
+_create-image-repository:
+  gcloud artifacts repositories describe --location $LOCATION --project $PROJECT $IMAGE_REPO || \
+  gcloud artifacts repositories create --location $LOCATION --project $PROJECT \
+  --repository-format=docker $IMAGE_REPO
+
+# Build and publish and image
+publish: _create-image-repository
+  docker buildx build --platform linux/amd64 \
+  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename $PWD`:`git rev-parse --short HEAD` \
+  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename $PWD`:latest .
+  docker push ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename $PWD`:`git rev-parse --short HEAD`
