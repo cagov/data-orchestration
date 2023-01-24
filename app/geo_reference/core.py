@@ -26,5 +26,6 @@ def load_data(url: str, name: str) -> None:
 if __name__ == "__main__":
     import sys
 
+    # TODO: perhaps make a real CLI here.
     assert len(sys.argv) == 3, "Expected exactly two arguments: URL and dataset name"
     load_data(sys.argv[1], sys.argv[2])

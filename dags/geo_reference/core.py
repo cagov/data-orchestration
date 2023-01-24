@@ -26,7 +26,7 @@ REFERENCE_DATA = {
 
 @dag(
     dag_id="core_geo_reference_data_dag",
-    start_date=datetime(2022, 1, 23),
+    start_date=datetime(2022, 1, 24),
     schedule_interval="@monthly",
     default_args=DEFAULT_ARGS,
 )
@@ -35,6 +35,10 @@ def core_geo_reference_data_dag():
     def core_data_group():
         for name, url in REFERENCE_DATA.items():
             task_id = f"load_{name}"
+            # Not 100% certain whether capturing in locals is necessary here, but
+            # it seems that in Airflow > 2.4 it is definitely not necessart anymore.
+            # Revisit if/when we upgrade. https://airflow.apache.org/docs/apache-airflow/
+            # 2.3.2/howto/dynamic-dag-generation.html#dynamic-dags-with-globals
             locals()[task_id] = KubernetesPodOperator(
                 task_id=task_id,
                 name=task_id,
