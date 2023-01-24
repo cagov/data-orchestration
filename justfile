@@ -57,11 +57,18 @@ trigger-local dag:
   composer-dev run-airflow-cmd $LOCAL dags trigger \
   -e `date -u +"%Y-%m-%dT%H:%M:%S%z"` {{dag}}
 
-# Test a DAG on the composer cluster
-test-task dag task:
+_sync-to-dest-directory:
   gsutil rsync -d -r -x "airflow_monitoring\.py|.*\.pyc|.*\.ipynb_checkpoints.*" \
   dags {{test_path}}
 
+# Test a DAG on the composer cluster
+test-dag dag: _sync-to-dest-directory
+  gcloud composer environments run $SOURCE_ENVIRONMENT --project $PROJECT --location $LOCATION \
+  dags test -- --subdir /home/airflow/gcs/data/test \
+  {{dag}} `date -u +"%Y-%m-%dT%H:%M:%S%z"`
+
+# Test a task on the composer cluster
+test-task dag task: _sync-to-dest-directory
   gcloud composer environments run $SOURCE_ENVIRONMENT --project $PROJECT --location $LOCATION \
   tasks test -- --subdir /home/airflow/gcs/data/test \
   {{dag}} {{task}} `date -u +"%Y-%m-%dT%H:%M:%S%z"`
