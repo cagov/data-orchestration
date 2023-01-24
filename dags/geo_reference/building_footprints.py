@@ -1,49 +1,36 @@
 """Microsoft building footprint data"""
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from airflow.decorators import dag, task
-from common.geo import gdf_to_bigquery
-
-DEFAULT_ARGS = {
-    "owner": "CalData",
-    "depends_on_past": False,
-    "email": ["odi-caldata-dse@innovation.ca.gov"],
-    "email_on_failure": False,
-    "email_on_retry": False,
-    "retries": 2,
-    "retry_delay": timedelta(minutes=5),
-}
-
-
-@task
-def load_state_footprints() -> None:
-    import geopandas
-
-    print("Downloading data")
-    gdf = geopandas.read_file(
-        "https://usbuildingdata.blob.core.windows.net/usbuildings-v2/California.geojson.zip"
-    )
-
-    print("Writing data to gbq")
-    gdf_to_bigquery(
-        gdf,
-        "geo_reference.california_building_footprints",
-        project_id="caldata-sandbox",
-        cluster=True,
-        if_exists="replace",
-    )
+from airflow.decorators import dag
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
+    KubernetesPodOperator,
+)
+from common.defaults import DEFAULT_ARGS
+from kubernetes.client import models as k8s_models
 
 
 @dag(
     description="Load Microsoft building footprints data",
-    start_date=datetime(2023, 1, 4),
+    start_date=datetime(2023, 1, 23),
     schedule_interval="@monthly",
     default_args=DEFAULT_ARGS,
 )
-def load_state_building_footprints():
-    load_state_footprints()
+def state_building_footprints_dag():
+    _ = KubernetesPodOperator(
+        task_id="load_state_building_footprints",
+        name="load_state_building_footprints",
+        arguments=["python", "-m", "app.geo_reference.building_footprints"],
+        namespace="composer-user-workloads",
+        image="us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/analytics:5fb840d",
+        kubernetes_conn_id="kubernetes_default",
+        config_file="/home/airflow/composer_kube_config",
+        startup_timeout_seconds=300,
+        container_resources=k8s_models.V1ResourceRequirements(
+            requests={"memory": "32Gi", "cpu": "8"},
+        ),
+    )
 
 
-run = load_state_building_footprints()
+run = state_building_footprints_dag()
