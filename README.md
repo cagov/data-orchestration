@@ -33,7 +33,7 @@ just create-local-env
 Start your dev environment:
 
 ```bash
-just start
+just start-local-env
 ```
 
 Then open a web browser and navigate to `localhost:8081` to view the Airflow UI.
@@ -43,22 +43,45 @@ You can also run Airflow commands from the command line.
 A couple of common ones are in the `justfile`:
 
 ```bash
-just list-dags  # list the DAGs that Airflow sees.
-just trigger $DAG  # trigger a specific DAG for testing.
+just list-local-dags  # list the DAGs that Airflow sees.
+just trigger-local $DAG  # trigger a specific DAG for testing.
 ```
+
+DAGs which use a `KubernetesPodOperator` are more difficult to test as it requires
+you to have a local kubernetes setup.
+
+Any easier approach is to use [this](https://cloud.google.com/composer/docs/how-to/using/testing-dags#error-check) guide,
+which copies your test DAGs to a test directory in the GCS bucket and runs it in the real cluster.
+This should be done with care as you could interfere with the production environment.
+
+A workflow for testing a local kubernetes-based dag is:
+
+1. Publish a new docker image:
+    ```bash
+    just publish
+    ```
+2. Update the image tag for the project `KubernetesPodOperator`s to point at your new image.
+3. Trigger the task you want to run:
+    ```bash
+    just test-task <dag-id> <task-id>
+    ```
 
 ## Deploying
 
 Currently there is no CI/CD set up for this project.
 
-You can then sync the DAGs with the GCS bucket:
+A basic deployment workflow:
 
-```bash
-just sync-dags
-```
-
-And you can sync the additional Python requirements with:
-
-```bash
-just sync-requirements
-```
+1. Publish a new docker image:
+    ```bash
+    just publish
+    ```
+2. Update the image tag for the project `KubernetesPodOperator`s to point at your new image.
+3. If any airflow requirements have changed, sync them with the Composer environment:
+    ```bash
+    just sync-requirements
+    ```
+4. Finally, sync the DAGs folder with the GCS bucket:
+    ```bash
+    just sync-dags
+    ```

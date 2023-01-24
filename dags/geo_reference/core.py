@@ -3,9 +3,12 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from airflow.decorators import dag, task
+from airflow.decorators import dag, task_group
+from airflow.operators.empty import EmptyOperator
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
+    KubernetesPodOperator,
+)
 from common.defaults import DEFAULT_ARGS
-from common.geo import gdf_to_bigquery
 
 REFERENCE_DATA = {
     "incorporated_cities": (
@@ -20,46 +23,36 @@ REFERENCE_DATA = {
     ),
 }
 
-# TODO: make these configurable and target staging/prod
-GBQ_DATASET = "geo_reference"
-PROJECT_ID = "caldata-sandbox"
+
+@dag(
+    dag_id="core_geo_reference_data_dag",
+    start_date=datetime(2022, 1, 24),
+    schedule_interval="@monthly",
+    default_args=DEFAULT_ARGS,
+)
+def core_geo_reference_data_dag():
+    @task_group
+    def core_data_group():
+        for name, url in REFERENCE_DATA.items():
+            task_id = f"load_{name}"
+            # Not 100% certain whether capturing in locals is necessary here, but
+            # it seems that in Airflow > 2.4 it is definitely not necessart anymore.
+            # Revisit if/when we upgrade. https://airflow.apache.org/docs/apache-airflow/
+            # 2.3.2/howto/dynamic-dag-generation.html#dynamic-dags-with-globals
+            locals()[task_id] = KubernetesPodOperator(
+                task_id=task_id,
+                name=task_id,
+                arguments=["python", "-m", "app.geo_reference.core", url, name],
+                namespace="composer-user-workloads",
+                image="us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/analytics:94feb9a",
+                kubernetes_conn_id="kubernetes_default",
+                config_file="/home/airflow/composer_kube_config",
+                startup_timeout_seconds=300,
+            )
+
+    finalize = EmptyOperator(task_id="finalize")
+
+    core_data_group() >> finalize
 
 
-@task
-def load_data(url: str, name: str) -> None:
-    """
-    ### Load Geospatial Data
-
-    Given a URL, load geospatial data into BigQuery
-    """
-    import geopandas
-
-    gdf = geopandas.read_file(url)
-    gdf_to_bigquery(
-        gdf,
-        destination_table=f"{GBQ_DATASET}.{name}",
-        project_id="caldata-sandbox",
-        if_exists="replace",
-    )
-
-
-# Somewhat awkward construction to avoid late-binding
-# loop variable nonsense.
-# cf. https://github.com/apache/airflow/discussions/21278
-def _make_dag(dag_id: str, url: str, name: str):
-    @dag(
-        dag_id=dag_id,
-        description=f"Load data for {name}",
-        start_date=datetime(2022, 12, 13),
-        schedule_interval="@monthly",
-        default_args=DEFAULT_ARGS,
-    )
-    def _load_data_dag():
-        load_data(url, name)
-
-    return _load_data_dag
-
-
-for name, url in REFERENCE_DATA.items():
-    dag_id = f"load_{name}"
-    globals()[dag_id] = _make_dag(dag_id, url, name)()
+run = core_geo_reference_data_dag()
