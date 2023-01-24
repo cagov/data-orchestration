@@ -8,7 +8,7 @@ from airflow.operators.empty import EmptyOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
-from common.defaults import DEFAULT_ARGS
+from common.defaults import DEFAULT_ARGS, DEFAULT_K8S_OPERATOR_ARGS
 
 REFERENCE_DATA = {
     "incorporated_cities": (
@@ -35,19 +35,14 @@ def core_geo_reference_data_dag():
     def core_data_group():
         for name, url in REFERENCE_DATA.items():
             task_id = f"load_{name}"
-            # Not 100% certain whether capturing in locals is necessary here, but
-            # it seems that in Airflow > 2.4 it is definitely not necessart anymore.
+            # Not 100% certain whether capturing in locals is necessary here,
+            # but it seems that in Airflow > 2.4 it is definitely not necessary.
             # Revisit if/when we upgrade. https://airflow.apache.org/docs/apache-airflow/
             # 2.3.2/howto/dynamic-dag-generation.html#dynamic-dags-with-globals
             locals()[task_id] = KubernetesPodOperator(
                 task_id=task_id,
-                name=task_id,
                 arguments=["python", "-m", "app.geo_reference.core", url, name],
-                namespace="composer-user-workloads",
-                image="us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/analytics:94feb9a",
-                kubernetes_conn_id="kubernetes_default",
-                config_file="/home/airflow/composer_kube_config",
-                startup_timeout_seconds=300,
+                **DEFAULT_K8S_OPERATOR_ARGS,
             )
 
     finalize = EmptyOperator(task_id="finalize")

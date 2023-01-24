@@ -16,3 +16,12 @@ DEFAULT_ARGS: dict[str, Any] = {
     "retry_delay": timedelta(minutes=5),
     "on_failure_callback": post_to_slack_on_failure,
 }
+
+
+DEFAULT_K8S_OPERATOR_ARGS = {
+    "namespace": "composer-user-workloads",
+    "image": "us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/analytics:5fb840d",
+    "kubernetes_conn_id": "kubernetes_default",
+    "config_file": "/home/airflow/composer_kube_config",
+    "startup_timeout_seconds": 300,  # Default is often not long enough to pull the image
+}
