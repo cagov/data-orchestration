@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import Any
 
-from .slack import post_to_slack_on_failure
+from common.slack import post_to_slack_on_failure
 
 DEFAULT_ARGS: dict[str, Any] = {
     "owner": "CalData",
