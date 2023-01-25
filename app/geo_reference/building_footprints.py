@@ -8,6 +8,9 @@ PROJECT_ID = "caldata-sandbox"
 
 
 def load_state_footprints() -> None:
+    """
+    Load Microsoft state building footprints dataset for California.
+    """
     import geopandas
 
     print("Downloading data")
@@ -20,6 +23,9 @@ def load_state_footprints() -> None:
         gdf,
         f"{GBQ_DATASET}.california_building_footprints",
         project_id=PROJECT_ID,
+        # Clustering on geometry is important for efficient querying of this dataset,
+        # as it doesn't have any other fields by which you can filter (e.g. FIPs,
+        # county, etc)
         cluster=True,
         if_exists="replace",
     )

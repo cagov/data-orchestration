@@ -19,9 +19,12 @@ DEFAULT_ARGS: dict[str, Any] = {
 
 
 DEFAULT_K8S_OPERATOR_ARGS = {
+    # This pod namespace inherits the same permissions as the airflow workers/scheduler from GCP
     "namespace": "composer-user-workloads",
+    # TODO: figure out a nice workflow for when/how to update the image tag.
     "image": "us-west1-docker.pkg.dev/caldata-sandbox/dse-orchestration-us-west1/analytics:5fb840d",
     "kubernetes_conn_id": "kubernetes_default",
     "config_file": "/home/airflow/composer_kube_config",
-    "startup_timeout_seconds": 300,  # Default is often not long enough to pull the image
+    # Default startup timeout is often not long enough to pull the image
+    "startup_timeout_seconds": 300,
 }

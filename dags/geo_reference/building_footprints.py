@@ -13,11 +13,16 @@ from kubernetes.client import models as k8s_models
 
 @dag(
     description="Load Microsoft building footprints data",
-    start_date=datetime(2023, 1, 23),
+    start_date=datetime(2023, 1, 25),
     schedule_interval="@monthly",
     default_args=DEFAULT_ARGS,
 )
 def state_building_footprints_dag():
+    """
+    Load MS building footprints dataset.
+
+    This is a larger job, so requests more pod resources.
+    """
     _ = KubernetesPodOperator(
         task_id="load_state_building_footprints",
         arguments=["python", "-m", "app.geo_reference.building_footprints"],
