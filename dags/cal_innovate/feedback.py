@@ -8,7 +8,7 @@ from datetime import datetime
 import pandas
 import requests
 from airflow.decorators import dag, task
-from common.defaults import DEFAULT_ARGS
+from common.defaults import DEFAULT_ARGS, default_gcp_project
 from google.cloud import bigquery
 
 DATA_URLS = {
@@ -61,7 +61,8 @@ def load_feedback_data() -> None:
 
     final = pandas.concat(dfs, axis=0, ignore_index=True)
 
-    client = bigquery.Client(project="dse-product-analytics-prd-bqd")
+    project_id = default_gcp_project()
+    client = bigquery.Client(project=project_id)
     schema = "prod_analytics_web"
     table = "ppf_data"
     tmp_table = f"{table}_tmp_{''.join(random.choices(string.ascii_lowercase, k=3))}"
@@ -75,7 +76,7 @@ def load_feedback_data() -> None:
     try:
         final.to_gbq(
             f"{schema}.{tmp_table}",
-            project_id="dse-product-analytics-prd-bqd",
+            project_id=project_id,
             if_exists="replace",
         )
 
@@ -111,7 +112,7 @@ def load_feedback_data() -> None:
               src.source
             )
             """,
-            project="dse-product-analytics-prd-bqd",
+            project=project_id,
         )
         # Drain the result -- not sure if this is entirely necessary
         for _ in q:

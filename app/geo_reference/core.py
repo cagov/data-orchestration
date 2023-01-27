@@ -1,9 +1,8 @@
 """Load simple geospatial data to BigQuery"""
+from ..utils import default_gcp_project
 from ..utils_geo import gdf_to_bigquery
 
-# TODO: make these configurable and target staging/prod
 GBQ_DATASET = "geo_reference"
-PROJECT_ID = "caldata-sandbox"
 
 
 def load_data(url: str, name: str) -> None:
@@ -14,11 +13,13 @@ def load_data(url: str, name: str) -> None:
     """
     import geopandas
 
+    project_id = default_gcp_project()
+
     gdf = geopandas.read_file(url)
     gdf_to_bigquery(
         gdf,
         destination_table=f"{GBQ_DATASET}.{name}",
-        project_id=PROJECT_ID,
+        project_id=project_id,
         if_exists="replace",
     )
 

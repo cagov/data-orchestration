@@ -8,10 +8,9 @@ from datetime import datetime
 import pandas
 import requests
 from airflow.decorators import dag, task
-from common.defaults import DEFAULT_ARGS
+from common.defaults import DEFAULT_ARGS, default_gcp_project
 
 GBQ_DATASET = "state_entities"
-PROJECT_ID = "caldata-sandbox"
 LEVEL_LABELS = ["A", "B", "1", "2", "3"]
 DATA_URL = (
     "https://dof.ca.gov/wp-content/uploads/Accounting/"
@@ -33,6 +32,8 @@ def load_data() -> None:
     ### Load Department of Finance State Entities data
     """
     import pdfplumber
+
+    project_id = default_gcp_project()
 
     # Regexes matching frontmatter and other lines we should skip
     skip = [
@@ -108,7 +109,7 @@ def load_data() -> None:
     )
     df.to_gbq(
         f"{GBQ_DATASET}.base_entities",
-        "caldata-sandbox",
+        project_id=project_id,
         if_exists="replace",
     )
 
