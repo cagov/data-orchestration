@@ -1,10 +1,9 @@
 from __future__ import annotations
 
+from ..utils import default_gcp_project
 from ..utils_geo import gdf_to_bigquery
 
-# TODO: make these configurable and target staging/prod
 GBQ_DATASET = "geo_reference"
-PROJECT_ID = "caldata-sandbox"
 
 
 def load_state_footprints() -> None:
@@ -12,6 +11,8 @@ def load_state_footprints() -> None:
     Load Microsoft state building footprints dataset for California.
     """
     import geopandas
+
+    project_id = default_gcp_project()
 
     print("Downloading data")
     gdf = geopandas.read_file(
@@ -22,7 +23,7 @@ def load_state_footprints() -> None:
     gdf_to_bigquery(
         gdf,
         f"{GBQ_DATASET}.california_building_footprints",
-        project_id=PROJECT_ID,
+        project_id=project_id,
         # Clustering on geometry is important for efficient querying of this dataset,
         # as it doesn't have any other fields by which you can filter (e.g. FIPs,
         # county, etc)

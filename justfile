@@ -57,6 +57,16 @@ trigger-local dag:
   composer-dev run-airflow-cmd $LOCAL dags trigger \
   -e `date -u +"%Y-%m-%dT%H:%M:%S%z"` {{dag}}
 
+# Test a DAG by name using the local deployment
+test-local-dag dag:
+  composer-dev run-airflow-cmd $LOCAL \
+  dags test {{dag}} `date -u +"%Y-%m-%dT%H:%M:%S%z"`
+
+# Test a task by name using the local deployment
+test-local-task dag task:
+  composer-dev run-airflow-cmd $LOCAL \
+  tasks test {{dag}} {{task}} `date -u +"%Y-%m-%dT%H:%M:%S%z"`
+
 _sync-to-dest-directory:
   gsutil rsync -d -r -x "airflow_monitoring\.py|.*\.pyc|.*\.ipynb_checkpoints.*" \
   dags {{test_path}}
@@ -82,8 +92,8 @@ _create-image-repository:
 # Build image
 build:
   docker buildx build --platform {{image_arch}} \
-  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image_name}}`:{{rev}} .
+  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/{{image_name}}:{{rev}} .
 
 # Build and publish and image
 publish: build _create-image-repository
-  docker push ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/`basename {{image_name}}`:{{rev}}
+  docker push ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/{{image_name}}:{{rev}}

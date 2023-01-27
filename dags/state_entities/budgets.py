@@ -6,11 +6,10 @@ from datetime import datetime
 
 import pandas
 from airflow.decorators import dag, task
-from common.defaults import DEFAULT_ARGS
+from common.defaults import DEFAULT_ARGS, default_gcp_project
 from common.requests import get
 
 GBQ_DATASET = "state_entities"
-PROJECT_ID = "caldata-sandbox"
 
 PREFIX = "https://ebudget.ca.gov/budget/publication/admin"
 
@@ -26,6 +25,8 @@ def camel_to_snake(s: str) -> str:
 @task
 def crawl_ebudget_site(year="2022-23"):
     """Crawl the eBudget site for a year's budget information"""
+
+    project_id = default_gcp_project()
 
     # This ontology doesn't match cleanly into the UCM one (Agency, subagency,
     # department, etc,  but that's okay since we treat UCM as authoritative and join
@@ -62,14 +63,14 @@ def crawl_ebudget_site(year="2022-23"):
     print("Loading agencies")
     agencies_df.to_gbq(
         f"{GBQ_DATASET}.ebudget_agency_and_department_budgets",
-        project_id=PROJECT_ID,
+        project_id=project_id,
         if_exists="replace",
     )
 
     print("Loading programs")
     programs_df.to_gbq(
         f"{GBQ_DATASET}.ebudget_program_budgets",
-        project_id=PROJECT_ID,
+        project_id=project_id,
         if_exists="replace",
     )
 
