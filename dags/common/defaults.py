@@ -7,6 +7,32 @@ from typing import Any
 
 from common.slack import post_to_slack_on_failure
 
+DEFAULT_IMAGE = os.environ.get("DEFAULT_IMAGE")
+
+DEFAULT_ARGS: dict[str, Any] = {
+    "owner": "CalData",
+    "depends_on_past": False,
+    "email": ["odi-caldata-dse@innovation.ca.gov"],
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "retries": 2,
+    "retry_delay": timedelta(minutes=5),
+    "on_failure_callback": post_to_slack_on_failure,
+}
+
+DEFAULT_K8S_OPERATOR_ARGS = {
+    # This pod namespace inherits the same permissions as the airflow workers/scheduler from GCP
+    "namespace": "composer-user-workloads",
+    # TODO: figure out a nice workflow for when/how to update the image and tag. This
+    # will need to be part of the CD process, though ideally there is also a nice dev
+    # process for trying images out.
+    "image": DEFAULT_IMAGE,
+    "kubernetes_conn_id": "kubernetes_default",
+    "config_file": "/home/airflow/composer_kube_config",
+    # Default startup timeout is often not long enough to pull the image
+    "startup_timeout_seconds": 300,
+}
+
 
 def default_gcp_project() -> str:
     """
@@ -28,29 +54,3 @@ def default_gcp_project() -> str:
     if not project:
         raise RuntimeError("Unable to determine the GCP project for writing data")
     return project
-
-
-DEFAULT_ARGS: dict[str, Any] = {
-    "owner": "CalData",
-    "depends_on_past": False,
-    "email": ["odi-caldata-dse@innovation.ca.gov"],
-    "email_on_failure": False,
-    "email_on_retry": False,
-    "retries": 2,
-    "retry_delay": timedelta(minutes=5),
-    "on_failure_callback": post_to_slack_on_failure,
-}
-
-
-DEFAULT_K8S_OPERATOR_ARGS = {
-    # This pod namespace inherits the same permissions as the airflow workers/scheduler from GCP
-    "namespace": "composer-user-workloads",
-    # TODO: figure out a nice workflow for when/how to update the image and tag. This
-    # will need to be part of the CD process, though ideally there is also a nice dev
-    # process for trying images out.
-    "image": "us-west1-docker.pkg.dev/dse-product-analytics-prd-bqd/dse-orchestration-us-west1/analytics:88d85fc",
-    "kubernetes_conn_id": "kubernetes_default",
-    "config_file": "/home/airflow/composer_kube_config",
-    # Default startup timeout is often not long enough to pull the image
-    "startup_timeout_seconds": 300,
-}

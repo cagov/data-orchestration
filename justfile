@@ -9,7 +9,9 @@ test_path := "${DAGS_BUCKET}/data/test"
 port := "8081"
 rev := `git rev-parse --short HEAD`
 image_arch := "linux/amd64"
-image_name := "analytics"
+image_tag := env_var_or_default("DEFAULT_IMAGE_TAG", "prod")
+publish_image_tag := env_var_or_default("PUBLISH_IMAGE_TAG", "dev")
+image_path := "${LOCATION}-docker.pkg.dev/$PROJECT/$DEFAULT_IMAGE_REPO/$DEFAULT_IMAGE_NAME"
 
 # Create a local composer development environment
 create-local-env:
@@ -20,16 +22,20 @@ create-local-env:
       --port {{port}} \
       --dags-path dags
 
-# Start the local composer development environment
-start-local-env:
+_sync-local-env:
   cp requirements.txt {{env_path}}/requirements.txt
+  cp variables.env {{env_path}}/variables.env
+  echo "DEFAULT_IMAGE={{image_path}}:{{image_tag}}" >> {{env_path}}/variables.env
+
+# Start the local composer development environment
+start-local-env: _sync-local-env
   composer-dev start $LOCAL
 
 # Restart the local composer development environment
-restart-local-env:
-  cp requirements.txt {{env_path}}/requirements.txt
+restart-local-env: _sync-local-env
   composer-dev restart $LOCAL
 
+# Stop the local composer development environment
 stop-local-env:
   composer-dev stop $LOCAL
 
@@ -92,8 +98,8 @@ _create-image-repository:
 # Build image
 build:
   docker buildx build --platform {{image_arch}} \
-  -t ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/{{image_name}}:{{rev}} .
+  -t {{image_path}}:{{image_tag}} . 
 
 # Build and publish and image
 publish: build _create-image-repository
-  docker push ${LOCATION}-docker.pkg.dev/$PROJECT/$IMAGE_REPO/{{image_name}}:{{rev}}
+  docker push {{image_path}}:{{image_tag}} 
