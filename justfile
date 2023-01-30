@@ -39,6 +39,12 @@ restart-local-env: _sync-local-env
 stop-local-env:
   composer-dev stop $LOCAL
 
+# Sync environment variables to the cloud environment
+# (Right now, this only syncs the default image path)
+sync-env-vars:
+  gcloud composer environments update $SOURCE_ENVIRONMENT --project=$PROJECT --location=$LOCATION \
+  --update-env-variables=DEFAULT_IMAGE={{image_path}}:{{image_tag}}
+
 # Sync the dags/ folder to the GCP bucket for the cloud environment (deploys!)
 sync-dags:
   gsutil rsync -d -r -x "airflow_monitoring\.py|.*\.pyc|.*\.ipynb_checkpoints.*" \
@@ -46,12 +52,12 @@ sync-dags:
 
 # Sync the requirements.txt file with the cloud environment
 sync-requirements:
-   gcloud composer environments update $SOURCE_ENVIRONMENT --project=$PROJECT --location=$LOCATION \
-   --update-pypi-packages-from-file=requirements.txt \
-   || true
+  gcloud composer environments update $SOURCE_ENVIRONMENT --project=$PROJECT --location=$LOCATION \
+  --update-pypi-packages-from-file=requirements.txt \
+  || true
 
 # Deploy to the cloud environment
-deploy: sync-requirements sync-dags
+deploy: sync-requirements sync-env-vars sync-dags
   echo "Deployed to ${SOURCE_ENVIRONMENT}!"
 
 # List the local DAGs
@@ -91,9 +97,9 @@ test-task dag task: _sync-to-dest-directory
 
 # Private rule to create an image repository in gcp
 _create-image-repository:
-  gcloud artifacts repositories describe --location $LOCATION --project $PROJECT $IMAGE_REPO || \
+  gcloud artifacts repositories describe --location $LOCATION --project $PROJECT $DEFAULT_IMAGE_REPO || \
   gcloud artifacts repositories create --location $LOCATION --project $PROJECT \
-  --repository-format=docker $IMAGE_REPO
+  --repository-format=docker $DEFAULT_IMAGE_REPO
 
 # Build image
 build:
