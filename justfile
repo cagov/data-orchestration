@@ -11,7 +11,7 @@ rev := `git rev-parse --short HEAD`
 image_arch := "linux/amd64"
 image_tag := env_var_or_default("DEFAULT_IMAGE_TAG", "prod")
 publish_image_tag := env_var_or_default("PUBLISH_IMAGE_TAG", "dev")
-image_path := "${LOCATION}-docker.pkg.dev/$PROJECT/$DEFAULT_IMAGE_REPO/$DEFAULT_IMAGE_NAME"
+image_path := "$LOCATION-docker.pkg.dev/$PROJECT/$DEFAULT_IMAGE_REPO/$DEFAULT_IMAGE_NAME"
 
 # Create a local composer development environment
 create-local-env:
@@ -105,8 +105,9 @@ _create-image-repository:
 # Build image
 build:
   docker buildx build --platform {{image_arch}} \
-  -t {{image_path}}:{{image_tag}} . 
+  -t {{image_path}}:{{publish_image_tag}} .
 
 # Build and publish and image
 publish: build _create-image-repository
-  docker push {{image_path}}:{{image_tag}} 
+  docker image list
+  docker push {{image_path}}:{{publish_image_tag}} 

@@ -5,5 +5,5 @@ dependencies:
   - just=1.9.0
   - google-cloud-sdk
   - pip
-  - pip:
-    git+https://github.com/GoogleCloudPlatform/composer-local-dev.git
+    #- pip:
+    #t- git+https://github.com/GoogleCloudPlatform/composer-local-dev.git
