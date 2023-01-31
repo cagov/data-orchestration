@@ -2,7 +2,7 @@ name: deploy
 
 on:
   push:
-    branches: [continuous-delivery]  # TODO: switch to main
+    branches: [main]
 
 env:
   SOURCE_ENVIRONMENT: dse-airflow-prd-cpr-uw1
