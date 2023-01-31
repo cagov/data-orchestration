@@ -4,10 +4,6 @@ on:
   push:
     branches: [continuous-delivery]  # TODO: switch to main
 
-defaults:
-  run:
-    shell: bash -l {0}
-
 env:
   SOURCE_ENVIRONMENT: dse-airflow-prd-cpr-uw1
   PROJECT: dse-product-analytics-prd-bqd
