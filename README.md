@@ -74,14 +74,9 @@ A basic deployment workflow:
 
 1. Publish a new docker image:
     ```bash
-    just publish
+    PUBLISH_IMAGE_TAG=prod just publish
     ```
-2. Update the image tag for the project `KubernetesPodOperator`s to point at your new image.
-3. If any airflow requirements have changed, sync them with the Composer environment:
-    ```bash
-    just sync-requirements
+2. Update the Airflow environment
     ```
-4. Finally, sync the DAGs folder with the GCS bucket:
-    ```bash
-    just sync-dags
+    just deploy
     ```
