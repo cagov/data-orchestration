@@ -9,10 +9,10 @@ defaults:
     shell: bash -l {0}
 
 env:
-  SOURCE_ENVIRONMENT: dse-airflow-dev-cpr-uw1
-  PROJECT: caldata-sandbox
+  SOURCE_ENVIRONMENT: dse-airflow-prd-cpr-uw1
+  PROJECT: dse-product-analytics-prd-bqd
   LOCATION: us-west1
-  DAGS_BUCKET: gs://us-west1-dse-airflow-dev-cp-598f1cb1-bucket
+  DAGS_BUCKET: gs://us-west1-dse-airflow-prd-cp-997f0707-bucket
   DEFAULT_IMAGE_REPO: dse-orchestration-us-west1
   DEFAULT_IMAGE_NAME: analytics
 
