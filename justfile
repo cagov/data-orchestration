@@ -43,7 +43,8 @@ stop-local-env:
 # (Right now, this only syncs the default image path)
 sync-env-vars:
   gcloud composer environments update $SOURCE_ENVIRONMENT --project=$PROJECT --location=$LOCATION \
-  --update-env-variables=DEFAULT_IMAGE={{image_path}}:{{image_tag}}
+  --update-env-variables=DEFAULT_IMAGE={{image_path}}:{{image_tag}} \
+  || true
 
 # Sync the dags/ folder to the GCP bucket for the cloud environment (deploys!)
 sync-dags:
