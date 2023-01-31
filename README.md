@@ -56,32 +56,33 @@ This should be done with care as you could interfere with the production environ
 
 A workflow for testing a local kubernetes-based dag is:
 
-1. Publish a new docker image:
+1. Publish a new docker image. By default it will publish an image to the Google Artifact Registry with a `dev` tag (this can be customized using the `PUBLISH_IMAGE_TAG` environment variable).
     ```bash
     just publish
     ```
-2. Update the image tag for the project `KubernetesPodOperator`s to point at your new image.
-3. Trigger the task you want to run:
+2. Set the `DEFAULT_IMAGE_TAG` environment variable to your new tag (`dev` by default).
+3. Restart your local environment to pick up the new development image:
+    ```bash
+    just restart-local-env
+    ```
+4. Trigger the task you want to run:
     ```bash
     just test-task <dag-id> <task-id>
     ```
 
 ## Deploying
 
-Currently there is no CI/CD set up for this project.
+This project deploys on merge to `main` using the
+[`deploy`](./.github/workflows/deploy.yml) workflow.
 
-A basic deployment workflow:
 
-1. Publish a new docker image:
+If you need to make a manual deployment, here is a basic workflow:
+
+1. Publish a new docker image with a `prod` tag:
     ```bash
-    just publish
+    PUBLISH_IMAGE_TAG=prod just publish
     ```
-2. Update the image tag for the project `KubernetesPodOperator`s to point at your new image.
-3. If any airflow requirements have changed, sync them with the Composer environment:
-    ```bash
-    just sync-requirements
+2. Update the Airflow environment (syncs dags and `requirements.txt` to the environment):
     ```
-4. Finally, sync the DAGs folder with the GCS bucket:
-    ```bash
-    just sync-dags
+    just deploy
     ```

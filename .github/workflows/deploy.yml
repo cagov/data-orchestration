@@ -1,0 +1,52 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+
+env:
+  SOURCE_ENVIRONMENT: dse-airflow-prd-cpr-uw1
+  PROJECT: dse-product-analytics-prd-bqd
+  LOCATION: us-west1
+  DAGS_BUCKET: gs://us-west1-dse-airflow-prd-cp-997f0707-bucket
+  DEFAULT_IMAGE_REPO: dse-orchestration-us-west1
+  DEFAULT_IMAGE_NAME: analytics
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+          export_environment_variables: true
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Setup just
+        uses: extractions/setup-just@v1
+        with:
+          just-version: 1.13
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Authenticate docker
+        run: |
+          gcloud auth configure-docker ${LOCATION}-docker.pkg.dev
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT }}/${{ env.DEFAULT_IMAGE_REPO }}/${{ env.DEFAULT_IMAGE_NAME  }}:prod
+
+      - name: Deploy
+        run: |
+          just deploy
