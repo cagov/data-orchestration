@@ -34,14 +34,14 @@ def gdf_to_bigquery(
     """
     assert isinstance(gdf, geopandas.GeoDataFrame)
 
-    if gdf.crs.srs != "epsg:4326":
+    if gdf.crs.srs.lower() != "epsg:4326":
         warnings.warn(
             f"GeoDataFrame has a projected coordinate system {gdf.crs.srs},"
             " but BigQuery only supports WGS84. Converting to to that."
         )
         gdf = gdf.to_crs(epsg=4326)  # type: ignore
 
-    assert gdf.crs.srs == "epsg:4326"
+    assert gdf.crs.srs.lower() == "epsg:4326"
 
     # Ensure that the geometry columns are properly oriented and valid geometries.
     # GBQ is fairly unforgiving, so this step is often required.
