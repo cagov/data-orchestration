@@ -8,7 +8,6 @@ select = [
   "E", # pycodestyle
   "F", # pyflakes
   "I", # isort
-  "ICN", # flake8-import-conventions
   "ISC", # flake8-implicit-str-concat
   "PGH", # pygrep-hooks
   "PLC", # pylint
@@ -19,7 +18,6 @@ select = [
   "RUF", # ruff-specific rules
   "SIM", # flake8-simplify
   "T10", # flake8-debugger
-  "T20", # flake8-print
   "TID", # flake8-tidy-imports
   "UP", # pyupgrade
   "W", # pycodestyle
