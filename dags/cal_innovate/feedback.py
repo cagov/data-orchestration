@@ -1,4 +1,4 @@
-"""Load feedback form data from CalInnovate sites"""
+"""Load feedback form data from CalInnovate sites."""
 from __future__ import annotations
 
 import random
@@ -16,7 +16,7 @@ DATA_URLS = {
     "drought": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=drought.ca.gov&requestor=datastudio",
     "cannabis": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=cannabis.ca.gov&requestor=datastudio",
     "innovation": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=innovation.ca.gov&requestor=datastudio",
-    "designsystem": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=designsystem.webstandards.ca.gov&requestor=datastudio",  # noqa: E501
+    "designsystem": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=designsystem.webstandards.ca.gov&requestor=datastudio",
     "ca": "https://fa-go-alph-d-002.azurewebsites.net/FeedbackData/?url=www.ca.gov&requestor=datastudio",
 }
 
@@ -28,9 +28,7 @@ default_args = {
 
 @task
 def load_feedback_data() -> None:
-    """
-    Load feedback data from api.alpha.ca.gov
-    """
+    """Load feedback data from api.alpha.ca.gov."""
     dfs = []
     # Iterate over the various CalInnovate domains. This could be broken up into
     # separate tasks to isolate failures, that's probably overkill right now.

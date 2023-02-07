@@ -1,4 +1,4 @@
-"""Load state entities list from department of finance"""
+"""Load state entities list from department of finance."""
 from __future__ import annotations
 
 import io
@@ -19,18 +19,13 @@ DATA_URL = (
 
 
 def clean_name(name: str) -> str:
-    """
-    Strip leading and trailing whitespace, and replace repeated
-    spaces with single spaces
-    """
+    """Strip leading/trailing whitespace and replace repeated spaces with single spaces."""
     return re.sub(" {2,}", " ", name.strip())
 
 
 @task
 def load_data() -> None:
-    """
-    ### Load Department of Finance State Entities data
-    """
+    """### Load Department of Finance State Entities data."""
     import pdfplumber
 
     project_id = default_gcp_project()
@@ -68,17 +63,17 @@ def load_data() -> None:
     for page in pdf.pages:
         lines = page.extract_text(layout=True).split("\n")
         print(page)
-        for l in lines:
-            if skip_re.search(l):
+        for line in lines:
+            if skip_re.search(line):
                 continue
 
-            match = entity_re.match(l)
+            match = entity_re.match(line)
             if match is None:
                 print(
-                    f'Unable to parse line "{clean_name(l)}", assigning to previous name'
+                    f'Unable to parse line "{clean_name(line)}", assigning to previous name'
                 )
                 revised = list(entities[-1])
-                revised[-1] = revised[5] + " " + clean_name(l)  # type: ignore
+                revised[-1] = revised[5] + " " + clean_name(line)  # type: ignore
                 entities[-1] = tuple(revised)
                 continue
 
@@ -94,7 +89,7 @@ def load_data() -> None:
 
             # Get the level number from the whitespace 😬
             level_n = (len(spaces) - indent) // ts
-            assert level_n <= 4
+            assert level_n <= len(LEVEL_LABELS) - 1
 
             # Fill the levels, null out everything after the current level
             levels[level_n] = code

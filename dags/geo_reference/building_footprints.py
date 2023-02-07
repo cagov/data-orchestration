@@ -1,4 +1,4 @@
-"""Microsoft building footprint data"""
+"""Microsoft building footprint data."""
 from __future__ import annotations
 
 from datetime import datetime

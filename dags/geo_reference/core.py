@@ -1,4 +1,4 @@
-"""Relatively simple geospatial reference data ingests"""
+"""Relatively simple geospatial reference data ingests."""
 from __future__ import annotations
 
 from datetime import datetime

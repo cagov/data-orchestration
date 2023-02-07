@@ -1,4 +1,4 @@
-"""Utilities for making HTTP requests"""
+"""Utilities for making HTTP requests."""
 
 import backoff
 import requests

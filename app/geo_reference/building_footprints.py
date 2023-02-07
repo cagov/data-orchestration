@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-from ..utils import default_gcp_project
-from ..utils_geo import gdf_to_bigquery
+from app.utils import default_gcp_project
+from app.utils_geo import gdf_to_bigquery
 
 GBQ_DATASET = "geo_reference"
 
 
 def load_state_footprints() -> None:
-    """
-    Load Microsoft state building footprints dataset for California.
-    """
+    """Load Microsoft state building footprints dataset for California."""
     import geopandas
 
     project_id = default_gcp_project()
