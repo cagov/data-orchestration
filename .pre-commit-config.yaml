@@ -4,34 +4,18 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: debug-statements
-  - repo: https://github.com/pycqa/isort
-    rev: 5.10.1
-    hooks:
-      - id: isort
-        language_version: python3
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.2
-    hooks:
-      - id: pyupgrade
-        args:
-          - --py38-plus
   - repo: https://github.com/psf/black
     rev: 22.10.0
     hooks:
       - id: black
         language_version: python3
-        exclude: versioneer.py
         args:
-          - --target-version=py38
-  - repo: https://github.com/pycqa/flake8
-    rev: 5.0.4
+          - --target-version=py310
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.243
     hooks:
-      - id: flake8
-        language_version: python3
-        additional_dependencies:
-          # NOTE: autoupdate does not pick up flake8-bugbear since it is a transitive
-          #  dependency. Make sure to update flake8-bugbear manually on a regular basis.
-          - flake8-bugbear==22.8.23
+      - id: ruff
+        args: [--show-source, --fix]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.2
     hooks:
@@ -47,12 +31,6 @@ repos:
         args: [--warn-unused-configs]
         additional_dependencies:
           # Type stubs
-          - pandas-stubs  # TODO
-          - types-docutils
-          - types-PyYAML
-          - types-psutil
+          - pandas-stubs
           - types-requests
-          - types-setuptools
-          # Typed libraries
           - numpy
-          - pytest

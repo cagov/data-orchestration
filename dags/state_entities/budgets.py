@@ -1,4 +1,4 @@
-"""Load state entity budgets from ebudget site"""
+"""Load state entity budgets from ebudget site."""
 from __future__ import annotations
 
 import re
@@ -16,16 +16,17 @@ PREFIX = "https://ebudget.ca.gov/budget/publication/admin"
 
 def camel_to_snake(s: str) -> str:
     """
-    Convert a camel-cased name to a snake-cased one, which is more appropriate for
-    case-insensitive data warehouse backends
+    Convert a camel-cased name to a snake-cased one.
+
+    Snake-cased names are more appropriate for case-insensitive systems like
+    data warehouse backends.
     """
     return re.sub(r"(?<!^)(?=[A-Z])", "_", s).lower()
 
 
 @task
 def crawl_ebudget_site(year="2022-23"):
-    """Crawl the eBudget site for a year's budget information"""
-
+    """Crawl the eBudget site for a year's budget information."""
     project_id = default_gcp_project()
 
     # This ontology doesn't match cleanly into the UCM one (Agency, subagency,
@@ -82,8 +83,7 @@ def crawl_ebudget_site(year="2022-23"):
     default_args=DEFAULT_ARGS,
 )
 def load_ebudget_data():
-    """Load eBudget data"""
-
+    """Load eBudget data."""
     # TODO: we will likely want to grab multiple years, and also load
     # proposed and May revision data.
     crawl_ebudget_site("2022-23")

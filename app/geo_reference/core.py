@@ -1,13 +1,13 @@
-"""Load simple geospatial data to BigQuery"""
-from ..utils import default_gcp_project
-from ..utils_geo import gdf_to_bigquery
+"""Load simple geospatial data to BigQuery."""
+from app.utils import default_gcp_project
+from app.utils_geo import gdf_to_bigquery
 
 GBQ_DATASET = "geo_reference"
 
 
 def load_data(url: str, name: str) -> None:
     """
-    ### Load Geospatial Data
+    ### Load Geospatial Data.
 
     Given a URL, load geospatial data into BigQuery
     """
@@ -28,5 +28,8 @@ if __name__ == "__main__":
     import sys
 
     # TODO: perhaps make a real CLI here.
-    assert len(sys.argv) == 3, "Expected exactly two arguments: URL and dataset name"
+    N_ARGS = 3
+    assert (
+        len(sys.argv) == N_ARGS
+    ), "Expected exactly two arguments: URL and dataset name"
     load_data(sys.argv[1], sys.argv[2])

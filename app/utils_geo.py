@@ -1,4 +1,4 @@
-"""Geospatial utilities"""
+"""Geospatial utilities."""
 from __future__ import annotations
 
 import warnings
@@ -23,9 +23,11 @@ def gdf_to_bigquery(
     location: str | None = None,
 ) -> None:
     """
-    A wrapper around `gdf.to_gbq` which does some additional validation and ensures
-    that the geometry objects are loaded correctly. For documentation of parameters,
-    see gdf.to_gbq.
+    Write a GeoPandas GeoDataFrame to Google BigQuery.
+
+    This is a  wrapper around ``gdf.to_gbq`` which does some additional validation and
+    ensures that the geometry objects are loaded correctly. For documentation
+    f parameters, see ``gdf.to_gbq``.
 
     One additional parameter is `cluster`, which can be set to True, or a column name.
     This creates a table with clustering. Since this can only be done at table creation
