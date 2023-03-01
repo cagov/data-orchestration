@@ -31,6 +31,6 @@ repos:
         args: [--warn-unused-configs]
         additional_dependencies:
           # Type stubs
-          - pandas-stubs==v1.5.3.230227
+          - pandas-stubs==v1.5.3.230214
           - types-requests
           - numpy
