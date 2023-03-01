@@ -13,7 +13,7 @@ from common.defaults import DEFAULT_ARGS, default_gcp_project
 GBQ_DATASET = "state_entities"
 LEVEL_LABELS = ["A", "B", "1", "2", "3"]
 DATA_URL = (
-    "https://dof.ca.gov/wp-content/uploads/Accounting/"
+    "https://dof.ca.gov/wp-content/uploads/sites/352/Accounting/"
     "Policies_and_Procedures/Uniform_Codes_Manual/3orgstruc.pdf"
 )
 
