@@ -99,7 +99,7 @@ def load_data() -> None:
 
     df = (
         pandas.DataFrame.from_records(entities, columns=[*LEVEL_LABELS, "name"])
-        .astype("str")
+        .astype("string[python]")
         .rename(columns={"1": "L1", "2": "L2", "3": "L3"})
     )
     df.to_gbq(
